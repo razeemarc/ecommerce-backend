@@ -1,15 +1,11 @@
-import express, { Request, Response } from "express";
-import authRoutes from "./routes/auth.routes";
-import healthRoutes from "./routes/health.routes";
+import express from "express";
+import moduleRoutes from "./modules"; // centralized import
+import healthRouter  from "./routes/health.routes";
 
 const app = express();
 
-// Middleware
 app.use(express.json());
-
-// Routes
-app.use("/api/auth", authRoutes);
-
-app.use("/health", healthRoutes);
+app.use("/api", moduleRoutes);
+app.use("/health", healthRouter);
 
 export default app;
