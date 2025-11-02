@@ -1,14 +1,31 @@
-import express from "express";
-import dotenv from "dotenv";
-import authRoutes from "./routes/auth.routes";
+import app from "./app";
+import { connectDatabase, disconnectDatabase } from "./config/database";
+import { logger } from "./config/logger";
+import { ENV } from "./config/environment";
 
-dotenv.config();
-const app = express();
+async function startServer() {
+  try {
+    await connectDatabase();
 
-app.use(express.json()); // parse JSON
-app.use("/api/auth", authRoutes);
+    const server = app.listen(ENV.PORT, () => {
+      logger.info(`🚀 Server running on port ${ENV.PORT} in ${ENV.NODE_ENV} mode`);
+    });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    const shutdown = async () => {
+      logger.info("🛑 Shutting down server...");
+      server.close(async () => {
+        await disconnectDatabase();
+        logger.info("✅ Server closed gracefully");
+        process.exit(0);
+      });
+    };
+
+    process.on("SIGINT", shutdown);
+    process.on("SIGTERM", shutdown);
+  } catch (error) {
+    logger.error("❌ Server startup failed:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
