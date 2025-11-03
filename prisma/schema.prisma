@@ -7,13 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("USER") 
-  createdAt DateTime @default(now())
- 
+model Auth {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  lastLoginAt DateTime?
+  user        User?
+
+  @@map("auth")
 }
 
+model User {
+  id         String   @id @default(uuid())
+  authId     String   @unique
+  name       String
+  role       Role
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
+  auth       Auth     @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+  @@map("user")
+}
+
+enum Role {
+  SUPER_ADMIN
+  SHOP_ADMIN
+  SHOP_MANAGER
+  SHOP_EMPLOYEE
+  USER
+}

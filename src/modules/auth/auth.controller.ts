@@ -1,26 +1,144 @@
-import { Request, Response } from "express";
-import { AuthService } from "./auth.services";
+// src/controllers/auth.controller.ts
 
-const authService = new AuthService();
+import { Request, Response } from 'express';
+import { AuthService } from './auth.services';
+import { LoginRequest, Role, SignupRequest } from './auth.types';
 
 export class AuthController {
-  async signup(req: Request, res: Response) {
-    try {
-      const { name, email, password } = req.body;
-      const user = await authService.signup(name, email, password);
-      res.status(201).json(user);
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
-    }
+  private authService: AuthService;
+
+  constructor() {
+    this.authService = new AuthService();
   }
 
-  async login(req: Request, res: Response) {
+  signup = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { email, password, name, role, shopId, branchId } = req.body;
+
+      // Basic validation
+      if (!email || !password || !name || !role) {
+        res.status(400).json({
+          success: false,
+          message: 'Email, password, name, and role are required'
+        });
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+        return;
+      }
+
+      // Password validation (min 6 characters)
+      if (password.length < 6) {
+        res.status(400).json({
+          success: false,
+          message: 'Password must be at least 6 characters long'
+        });
+        return;
+      }
+
+      const result = await this.authService.signup(
+        email,
+        password,
+        name,
+        role as Role,
+        shopId,
+        branchId
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'User registered successfully',
+        data: result
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Internal server error'
+        });
+      }
+    }
+  };
+
+  login = async (req: Request, res: Response): Promise<void> => {
     try {
       const { email, password } = req.body;
-      const data = await authService.login(email, password);
-      res.json(data);
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+
+      // Basic validation
+      if (!email || !password) {
+        res.status(400).json({
+          success: false,
+          message: 'Email and password are required'
+        });
+        return;
+      }
+
+      const result = await this.authService.login(email, password);
+
+      res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        data: result
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(401).json({
+          success: false,
+          message: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Internal server error'
+        });
+      }
     }
-  }
+  };
+
+  verifyToken = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const authHeader = req.headers.authorization;
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        res.status(401).json({
+          success: false,
+          message: 'No token provided'
+        });
+        return;
+      }
+
+      const token = authHeader.substring(7);
+      const payload = this.authService.verifyToken(token);
+
+      res.status(200).json({
+        success: true,
+        message: 'Token is valid',
+        data: payload
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(401).json({
+          success: false,
+          message: error.message
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Internal server error'
+        });
+      }
+    }
+  };
 }
