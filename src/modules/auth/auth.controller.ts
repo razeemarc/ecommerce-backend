@@ -15,7 +15,6 @@ export class AuthController {
     try {
       const { email, password, name, role, shopId, branchId } = req.body;
 
-      // Basic validation
       if (!email || !password || !name || !role) {
         res.status(400).json({
           success: false,
