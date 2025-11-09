@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { AuthRepository } from './auth.repository';
 import { Role, JWTPayload } from './auth.types';
 
@@ -12,8 +12,7 @@ export interface AuthResponse {
     email: string;
     name: string;
     role: Role;
-    shopId?: string | null;
-    branchId?: string | null;
+  
   };
 }
 
@@ -35,10 +34,7 @@ export class AuthService {
       throw new Error('Email already registered');
     }
 
-    // Validate role-specific requirements
-    if (role !== 'SUPER_ADMIN' && !shopId) {
-      throw new Error('Shop ID is required for non-SUPER_ADMIN roles');
-    }
+   
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -49,8 +45,8 @@ export class AuthService {
       password: hashedPassword,
       name,
       role,
-      shopId,
-      branchId
+    
+      
     });
 
     if (!authWithUser.user) {
@@ -72,8 +68,7 @@ export class AuthService {
         email: authWithUser.email,
         name: authWithUser.user.name,
         role: authWithUser.user.role,
-        shopId: authWithUser.user.shopId,
-        branchId: authWithUser.user.branchId
+       
       }
     };
   }
@@ -86,7 +81,7 @@ export class AuthService {
     }
 
     // Check if account is active
-    if (!auth.isActive) {
+    if (!auth.is_active) {
       throw new Error('Account is inactive');
     }
 
@@ -114,8 +109,7 @@ export class AuthService {
         email: auth.email,
         name: auth.user.name,
         role: auth.user.role,
-        shopId: auth.user.shopId,
-        branchId: auth.user.branchId
+     
       }
     };
   }

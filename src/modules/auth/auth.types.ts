@@ -9,8 +9,7 @@ export interface SignupRequest {
   password: string;
   name: string;
   role: Role;
-  shopId?: string;
-  branchId?: string;
+ phone:string
 }
 
 export interface LoginRequest {
@@ -25,8 +24,7 @@ export interface AuthResponse {
     email: string;
     name: string;
     role: Role;
-    shopId?: string | null;
-    branchId?: string | null;
+   
   };
 }
 

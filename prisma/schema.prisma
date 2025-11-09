@@ -15,7 +15,10 @@ enum Gender {
   female
   others
 }
-
+enum Role {
+  ADMIN
+  USER
+}
 enum AddressType {
   Home
   Work
@@ -50,6 +53,10 @@ model Auth {
   id          String   @id @default(uuid())
   email       String   @unique
   password    String
+  is_active   Boolean @default(true)
+  last_login  DateTime?
+  is_deleted  Boolean  @default(false)
+  deleted_at  DateTime?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   user        User?
@@ -59,7 +66,8 @@ model Auth {
 model User {
   id           String    @id @default(uuid())
   code         String    @unique
-  name         String?
+  name         String
+  role         Role      @default(USER)
   phone        String    @unique
   gender       Gender?
   is_deleted   Boolean   @default(false)

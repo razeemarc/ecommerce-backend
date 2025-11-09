@@ -23,9 +23,10 @@ export class AuthRepository {
     email: string;
     password: string;
     name: string;
+    phone:string,
+    code:string,
     role: Role;
-    shopId?: string;
-    branchId?: string;
+   
   }): Promise<Auth & { user: User }> {
     return await prisma.auth.create({
       data: {
@@ -35,8 +36,9 @@ export class AuthRepository {
           create: {
             name: data.name,
             role: data.role,
-            shopId: data.shopId,
-            branchId: data.branchId
+            phone:data.phone,
+            code:Math.floor(100000 + Math.random() * 900000).toString(),
+            
           }
         }
       },
@@ -47,7 +49,7 @@ export class AuthRepository {
   async updateLastLogin(authId: string): Promise<Auth> {
     return await prisma.auth.update({
       where: { id: authId },
-      data: { lastLoginAt: new Date() }
+      data: { last_login: new Date() }
     });
   }
 

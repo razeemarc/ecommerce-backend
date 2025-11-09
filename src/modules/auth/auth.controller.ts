@@ -13,12 +13,12 @@ export class AuthController {
 
   signup = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { email, password, name, role, shopId, branchId } = req.body;
+      const { email, password, name, role,phone } = req.body;
 
-      if (!email || !password || !name || !role) {
+      if (!email || !password || !name || !role ||!phone) {
         res.status(400).json({
           success: false,
-          message: 'Email, password, name, and role are required'
+          message: 'Email, password, name,phone and role are required'
         });
         return;
       }
@@ -47,8 +47,7 @@ export class AuthController {
         password,
         name,
         role as Role,
-        shopId,
-        branchId
+      
       );
 
       res.status(201).json({
