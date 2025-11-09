@@ -1,6 +1,3 @@
-
-
-````markdown
 # 🚀 Suger Backend — Authentication Service
 
 A clean architecture–based Node.js + TypeScript + Prisma project with PostgreSQL running in Docker.
@@ -26,7 +23,7 @@ A clean architecture–based Node.js + TypeScript + Prisma project with PostgreS
 ```bash
 git clone https://github.com/your-username/suger-backend.git
 cd suger-backend
-````
+```
 
 ---
 
@@ -50,21 +47,27 @@ PORT=5000
 
 ---
 
-### 4️⃣ Run PostgreSQL in Docker
+### 4️⃣ 🏗️ Build Docker Images & Run Containers
 
-Make sure Docker is installed and running.
-Then run:
+Make sure Docker is installed and running.  
+Then build your application image and start the PostgreSQL service:
 
 ```bash
-docker-compose up -d
+# Build all Docker images (app + database)
+docker compose build
+
+# Start all containers in detached mode
+docker compose up -d
 ```
 
 ✅ **What this does:**
 
-* Pulls the PostgreSQL image
-* Creates a container named `postgres_db`
-* Exposes port `5432`
-* Stores data in a Docker volume (`postgres_data`)
+* Builds your Node.js application image (`sugar_app`)
+* Pulls and starts a PostgreSQL container (`postgres_db`)
+* Exposes:
+  * App → [http://localhost:3000](http://localhost:3000)
+  * Postgres → port `5432`
+* Persists data in a Docker volume (`postgres_data`)
 
 To check running containers:
 
@@ -72,11 +75,23 @@ To check running containers:
 docker ps
 ```
 
+To view logs:
+
+```bash
+docker logs sugar_app -f
+```
+
+To stop containers:
+
+```bash
+docker compose down
+```
+
 ---
 
 ### 5️⃣ Setup Prisma
 
-Generate Prisma client and push the schema to your database:
+Generate the Prisma client and push your schema to the database:
 
 ```bash
 pnpm prisma generate
@@ -206,36 +221,38 @@ volumes:
 
 ## 🧠 Common Commands
 
-| Command                | Description                       |
-| ---------------------- | --------------------------------- |
-| `pnpm run dev`         | Run in development mode           |
-| `docker-compose up -d` | Start PostgreSQL in Docker        |
-| `docker-compose down`  | Stop and remove containers        |
-| `pnpm prisma studio`   | Open Prisma GUI (database viewer) |
-| `pnpm prisma generate` | Generate Prisma client            |
-| `pnpm prisma db push`  | Sync schema with DB               |
+| Command                | Description                                |
+| ---------------------- | ------------------------------------------ |
+| `pnpm run dev`         | Run the server in development mode         |
+| `docker compose build` | Build Docker images                        |
+| `docker compose up -d` | Start PostgreSQL & app in background       |
+| `docker compose down`  | Stop and remove containers                 |
+| `pnpm prisma studio`   | Open Prisma GUI (database viewer)          |
+| `pnpm prisma generate` | Generate Prisma client                     |
+| `pnpm prisma db push`  | Sync schema with database                  |
 
 ---
 
 ## 🧰 Troubleshooting
 
-❌ **Error:** `The table "User" does not exist`
+❌ **Error:** `The table "User" does not exist`  
 ✅ Run:
-
 ```bash
 pnpm prisma db push
 ```
 
-❌ **Error:** `secretOrPrivateKey must have a value`
+❌ **Error:** `secretOrPrivateKey must have a value`  
 ✅ Make sure `JWT_SECRET` is defined in `.env`.
+
+❌ **Error:** `Database connection refused`  
+✅ Make sure Docker is running and Postgres container is up:
+```bash
+docker ps
+```
 
 ---
 
 ## 👩‍💻 Author
 
-**Razeema R C**
+**Razeema R C**  
 Backend Developer | Node.js | Prisma | PostgreSQL
-
----
-
-
