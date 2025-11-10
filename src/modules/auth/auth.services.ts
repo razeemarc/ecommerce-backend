@@ -43,9 +43,10 @@ export class AuthService {
     const authWithUser = await this.authRepository.createAuthWithUser({
       email,
       password: hashedPassword,
+      phone: '',
+      code: '',
       name,
       role,
-    
       
     });
 

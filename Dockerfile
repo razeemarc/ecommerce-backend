@@ -1,27 +1,30 @@
+# 1. Base image
 FROM node:20-alpine
+
+# 2. Working directory
 WORKDIR /app
 
-# Install security updates and dumb-init
-RUN apk update && apk upgrade && apk add --no-cache dumb-init
+# 3. Copy only dependency files
+COPY package*.json pnpm-lock.yaml* ./
 
-# Copy package files
-COPY package*.json pnpm-lock.yaml ./
+# 4. Install pnpm and dependencies
+RUN npm install -g pnpm
+RUN pnpm install
 
-# Install pnpm and all dependencies including dev
-RUN npm install -g pnpm && pnpm install --frozen-lockfile=false --dev
-
-# Copy all project files
+# 5. Copy rest of the source code
 COPY . .
 
-# Generate Prisma client
+# 6. Generate Prisma client (important before build)
 RUN npx prisma generate
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
-USER nextjs
+# 7. Build TypeScript into dist/
+RUN pnpm build
 
-# Expose port 3000
-EXPOSE 3000
+# 8. Expose your app port
+EXPOSE 5000
 
-# Run Prisma generate (just in case) and start app
-CMD ["sh", "-c", "npx prisma generate && dumb-init npm run start"]
+# Optional: clean permissions
+RUN chmod -R 755 /app/node_modules
+
+# 9. Start app using built files
+CMD ["pnpm", "start"]
