@@ -3,7 +3,6 @@ node_modules
 .gitignore
 Dockerfile
 .dockerignore
-
 .vscode
 .next
 dist
